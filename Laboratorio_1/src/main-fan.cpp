@@ -154,7 +154,7 @@ int main()
         //                |          |  |                 +--- Vértices começam em indices[0] (veja função BuildTriangles()).
         //                |          |  |                 |
         //                V          V  V                 V
-        glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, 0);
+        glDrawElements(GL_TRIANGLE_FAN, 48, GL_UNSIGNED_BYTE, 0);
 
         // "Desligamos" o VAO, evitando assim que operações posteriores venham a
         // alterar o mesmo. Isso evita bugs.
@@ -211,38 +211,29 @@ GLuint BuildTriangles()
     // Este vetor "NDC_coefficients" define a GEOMETRIA (veja slides 103-110 do documento Aula_04_Modelagem_Geometrica_3D.pdf).
     //
 	
-	GLfloat NDC_coefficients[32 * 4];
+	GLfloat NDC_coefficients[17 * 4];
 
-    float inner_x = 0.0f;
-    float outer_x = 0.0f;
-    float inner_y = 0.5f;
-    float outer_y = 0.7f;
+    NDC_coefficients[0] = 0.0f;
+    NDC_coefficients[1] = 0.0f;
+    NDC_coefficients[2] = 0.0f;
+    NDC_coefficients[3] = 1.0f;
+
+    float x = 0.0f;
+    float y = 0.7f;
     double angle = 22.5;
-	
-    for (int i = 0; i <= 32; i++) {
-		if (i%2 == 0) {
-			int index = i * 4;
-        	NDC_coefficients[index] = inner_x;
-        	NDC_coefficients[index + 1] = inner_y;
-        	NDC_coefficients[index + 2] = 0.0f; // Z
-        	NDC_coefficients[index + 3] = 1.0f; // W
 
-			float *new_points = rotate(inner_x, inner_y, angle);
-        	inner_x = *new_points;
-        	inner_y = *(new_points + 1);
-		} else {
-			int index = i * 4;
-        	NDC_coefficients[index] = outer_x;
-        	NDC_coefficients[index + 1] = outer_y;
-        	NDC_coefficients[index + 2] = 0.0f; // Z
-        	NDC_coefficients[index + 3] = 1.0f; // W
-			
-			float *new_points = rotate(outer_x, outer_y, angle);
-        	outer_x = *new_points;
-        	outer_y = *(new_points + 1);
-		}
-	}
-	
+    for (int i = 1; i <= 16; i++) {
+        int index = i * 4;
+        NDC_coefficients[index] = x;
+        NDC_coefficients[index + 1] = y;
+        NDC_coefficients[index + 2] = 0.0f; // Z
+        NDC_coefficients[index + 3] = 1.0f; // W
+
+        float *new_points = rotate(x, y, angle);
+        x = *new_points;
+        y = *(new_points + 1);
+    }
+    
 	// Criamos o identificador (ID) de um Vertex Buffer Object (VBO).  Um VBO é
     // um buffer de memória que irá conter os valores de um certo atributo de
     // um conjunto de vértices; por exemplo: posição, cor, normais, coordenadas
@@ -318,22 +309,19 @@ GLuint BuildTriangles()
     // isto é: Vermelho, Verde, Azul, Alpha (valor de transparência).
     // Conversaremos sobre sistemas de cores nas aulas de Modelos de Iluminação.
 
-	GLfloat color_coefficients[32 * 4];
+	GLfloat color_coefficients[17 * 4];
 
-    for (int i = 0; i <= 32; i++) {
-		if (i % 2 == 0) {
-        	int j = i * 4;
-			color_coefficients[j] 	  = 1.0f;  // R
-        	color_coefficients[j + 1] = 0.0f;  // G
-        	color_coefficients[j + 2] = 0.0f;  // B
-        	color_coefficients[j + 3] = 0.0f;  // A
-		} else {
-			int j = i * 4;
-        	color_coefficients[j] 	  = 0.0f;  // R
-        	color_coefficients[j + 1] = 0.0f;  // G
-        	color_coefficients[j + 2] = 1.0f;  // B
-        	color_coefficients[j + 3] = 0.0f;  // A
-		}
+    color_coefficients[0] = 1.0f; // R
+    color_coefficients[1] = 0.0f; // G
+    color_coefficients[2] = 0.0f; // B
+    color_coefficients[3] = 0.0f; // A
+
+    for (int i = 1; i <= 16; i++) {
+        int j = i * 4;
+        color_coefficients[j] 	  = 0.0f;      // R
+        color_coefficients[j + 1] = 0.0f;  // G
+        color_coefficients[j + 2] = 1.0f;  // B
+        color_coefficients[j + 3] = 0.0f;  // A
     }
 
     GLuint VBO_color_coefficients_id;
@@ -354,14 +342,7 @@ GLuint BuildTriangles()
     //
     // Este vetor "indices" define a TOPOLOGIA (veja slides 103-110 do documento Aula_04_Modelagem_Geometrica_3D.pdf).
     //
-    GLubyte indices[34]; // GLubyte: valores entre 0 e 255 (8 bits sem sinal).
-	
-	for (int i = 0; i < 32; i++) {
-		indices[i] = i;
-	}
-
-	indices[32] = 0;
-	indices[33] = 1;
+    GLubyte indices[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 1 }; // GLubyte: valores entre 0 e 255 (8 bits sem sinal).
 
     // Criamos um buffer OpenGL para armazenar os índices acima
     GLuint indices_id;
