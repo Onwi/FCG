@@ -116,6 +116,11 @@ float g_CameraDistance = 2.5f; // Distância da câmera para a origem
 
 // Variável que controla o tipo de projeção utilizada: perspectiva ou ortográfica.
 bool g_UsePerspectiveProjection = true;
+// variaveis que controlam a movimentacao da camera
+bool g_WKeyPressed = false;
+bool g_AKeyPressed = false;
+bool g_SKeyPressed = false;
+bool g_DKeyPressed = false;
 
 // Variável que controla se o texto informativo será mostrado na tela.
 bool g_ShowInfoText = true;
@@ -152,7 +157,7 @@ int main()
     // Criamos uma janela do sistema operacional, com 800 colunas e 800 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 800, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 800, "INF01047 - 314111 - Luis Coelho", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -218,7 +223,16 @@ int main()
     glm::mat4 the_projection;
     glm::mat4 the_model;
     glm::mat4 the_view;
+	
+	float r = g_CameraDistance;
+    float y = r*sin(g_CameraPhi);
+    float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
+    float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+	glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f);
 
+
+	float prev_time = (float) glfwGetTime();
+	float speed = 0.3f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -249,18 +263,39 @@ int main()
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+        r = g_CameraDistance;
+        y = r*sin(g_CameraPhi);
+        z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
+        x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
         // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
         // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
-        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
+        //glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
+        //glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
+        glm::vec4 camera_view_vector = -glm::vec4(x,y,z,0.0f); // Vetor "view", sentido para onde a câmera está virada
         glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
 
+		
+		float curr_time = (float) glfwGetTime();
+		float deltaT = curr_time - prev_time;
+		prev_time = curr_time;
+		
+		if (g_WKeyPressed) {
+			camera_position_c += (camera_view_vector * speed * deltaT);
+		}
+		
+		if (g_AKeyPressed) {
+			camera_position_c += (crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
+		}
+		
+		if (g_SKeyPressed) {
+			camera_position_c += (-camera_view_vector * speed * deltaT);
+		}
+		
+		if (g_DKeyPressed) {
+			camera_position_c += (-crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
+		}
+		
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
         glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
@@ -1083,6 +1118,54 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     {
         g_ShowInfoText = !g_ShowInfoText;
     }
+	
+	// controle da posicao da camera
+	// A tecla 'W' deve movimentar a câmera para FRENTE (em relação ao sistema de coordenadas da câmera);
+	// A tecla 'S' deve movimentar a câmera para TRÁS (em relação ao sistema de coordenadas da câmera);
+	// A tecla 'D' deve movimentar a câmera para DIREITA (em relação ao sistema de coordenadas da câmera);
+	// A tecla 'A' deve movimentar a câmera para ESQUERDA (em relação ao sistema de coordenadas da câmera);
+	
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        g_WKeyPressed = true;
+    }
+	
+	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+    {
+        g_AKeyPressed = true;
+    }
+	
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        g_SKeyPressed = true;
+    }
+	
+	if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    {
+        g_DKeyPressed = true;
+    }
+
+	// "desliga" quando soltar a tecla	
+	if (key == GLFW_KEY_W && action == GLFW_RELEASE) 
+    {
+        g_WKeyPressed = false;
+    }
+	
+	if (key == GLFW_KEY_A && action == GLFW_RELEASE)
+    {
+        g_AKeyPressed = false;
+    }
+	
+	if (key == GLFW_KEY_S && action == GLFW_RELEASE)
+    {
+        g_SKeyPressed = false;
+    }
+	
+	if (key == GLFW_KEY_D && action == GLFW_RELEASE)
+    {
+        g_DKeyPressed = false;
+    }
+
 }
 
 // Definimos o callback para impressão de erros da GLFW no terminal
