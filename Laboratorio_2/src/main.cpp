@@ -223,16 +223,15 @@ int main()
     glm::mat4 the_projection;
     glm::mat4 the_model;
     glm::mat4 the_view;
-	
-	float r = g_CameraDistance;
-    float y = r*sin(g_CameraPhi);
-    float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-    float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
-	glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f);
 
+    float r = g_CameraDistance;
+    float y = r * sin(g_CameraPhi);
+    float z = r * cos(g_CameraPhi) * cos(g_CameraTheta);
+    float x = r * cos(g_CameraPhi) * sin(g_CameraTheta);
+    glm::vec4 camera_position_c = glm::vec4(x, y, z, 1.0f);
 
-	float prev_time = (float) glfwGetTime();
-	float speed = 0.3f;
+    float prev_time = (float)glfwGetTime();
+    float speed = 0.3f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -275,27 +274,30 @@ int main()
         glm::vec4 camera_view_vector = -glm::vec4(x,y,z,0.0f); // Vetor "view", sentido para onde a câmera está virada
         glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
 
-		
-		float curr_time = (float) glfwGetTime();
-		float deltaT = curr_time - prev_time;
-		prev_time = curr_time;
-		
-		if (g_WKeyPressed) {
-			camera_position_c += (camera_view_vector * speed * deltaT);
-		}
-		
-		if (g_AKeyPressed) {
-			camera_position_c += (crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
-		}
-		
-		if (g_SKeyPressed) {
-			camera_position_c += (-camera_view_vector * speed * deltaT);
-		}
-		
-		if (g_DKeyPressed) {
-			camera_position_c += (-crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
-		}
-		
+        float curr_time = (float)glfwGetTime();
+        float deltaT = curr_time - prev_time;
+        prev_time = curr_time;
+
+        if (g_WKeyPressed)
+        {
+            camera_position_c += (camera_view_vector * speed * deltaT);
+        }
+
+        if (g_AKeyPressed)
+        {
+            camera_position_c += (crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
+        }
+
+        if (g_SKeyPressed)
+        {
+            camera_position_c += (-camera_view_vector * speed * deltaT);
+        }
+
+        if (g_DKeyPressed)
+        {
+            camera_position_c += (-crossproduct(camera_up_vector, camera_view_vector) * speed * deltaT);
+        }
+
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
         glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
@@ -680,30 +682,30 @@ GLuint BuildTriangles()
     // Definimos os índices dos vértices que definem as FACES de um cubo
     // através de 12 triângulos que serão desenhados com o modo de renderização
     // GL_TRIANGLES.
-        0, 1, 2, // triângulo 1 
-        7, 6, 5, // triângulo 2 
-        3, 2, 6, // triângulo 3 
-        4, 0, 3, // triângulo 4 
-        4, 5, 1, // triângulo 5 
-        1, 5, 6, // triângulo 6 
-        0, 2, 3, // triângulo 7 
-        7, 5, 4, // triângulo 8 
-        3, 6, 7, // triângulo 9 
+        0, 1, 2, // triângulo 1
+        7, 6, 5, // triângulo 2
+        3, 2, 6, // triângulo 3
+        4, 0, 3, // triângulo 4
+        4, 5, 1, // triângulo 5
+        1, 5, 6, // triângulo 6
+        0, 2, 3, // triângulo 7
+        7, 5, 4, // triângulo 8
+        3, 6, 7, // triângulo 9
         4, 3, 7, // triângulo 10
         4, 1, 0, // triângulo 11
         1, 6, 2, // triângulo 12
     // Definimos os índices dos vértices que definem as ARESTAS de um cubo
     // através de 12 linhas que serão desenhadas com o modo de renderização
     // GL_LINES.
-        0, 1, // linha 1 
-        1, 2, // linha 2 
-        2, 3, // linha 3 
-        3, 0, // linha 4 
-        0, 4, // linha 5 
-        4, 7, // linha 6 
-        7, 6, // linha 7 
-        6, 2, // linha 8 
-        6, 5, // linha 9 
+        0, 1, // linha 1
+        1, 2, // linha 2
+        2, 3, // linha 3
+        3, 0, // linha 4
+        0, 4, // linha 5
+        4, 7, // linha 6
+        7, 6, // linha 7
+        6, 2, // linha 8
+        6, 5, // linha 9
         5, 4, // linha 10
         5, 1, // linha 11
         7, 3, // linha 12
@@ -1118,50 +1120,50 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     {
         g_ShowInfoText = !g_ShowInfoText;
     }
-	
-	// controle da posicao da camera
-	// A tecla 'W' deve movimentar a câmera para FRENTE (em relação ao sistema de coordenadas da câmera);
-	// A tecla 'S' deve movimentar a câmera para TRÁS (em relação ao sistema de coordenadas da câmera);
-	// A tecla 'D' deve movimentar a câmera para DIREITA (em relação ao sistema de coordenadas da câmera);
-	// A tecla 'A' deve movimentar a câmera para ESQUERDA (em relação ao sistema de coordenadas da câmera);
-	
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+
+  	// controle da posicao da camera
+  	// A tecla 'W' deve movimentar a câmera para FRENTE (em relação ao sistema de coordenadas da câmera);
+  	// A tecla 'S' deve movimentar a câmera para TRÁS (em relação ao sistema de coordenadas da câmera);
+  	// A tecla 'D' deve movimentar a câmera para DIREITA (em relação ao sistema de coordenadas da câmera);
+  	// A tecla 'A' deve movimentar a câmera para ESQUERDA (em relação ao sistema de coordenadas da câmera);
+
+  	if (key == GLFW_KEY_W && action == GLFW_PRESS)
     {
         g_WKeyPressed = true;
     }
-	
-	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+
+  	if (key == GLFW_KEY_A && action == GLFW_PRESS)
     {
         g_AKeyPressed = true;
     }
-	
-	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+
+  	if (key == GLFW_KEY_S && action == GLFW_PRESS)
     {
         g_SKeyPressed = true;
     }
-	
-	if (key == GLFW_KEY_D && action == GLFW_PRESS)
+
+  	if (key == GLFW_KEY_D && action == GLFW_PRESS)
     {
         g_DKeyPressed = true;
     }
 
-	// "desliga" quando soltar a tecla	
-	if (key == GLFW_KEY_W && action == GLFW_RELEASE) 
+  	// "desliga" quando soltar a tecla
+  	if (key == GLFW_KEY_W && action == GLFW_RELEASE)
     {
         g_WKeyPressed = false;
     }
-	
-	if (key == GLFW_KEY_A && action == GLFW_RELEASE)
+
+  	if (key == GLFW_KEY_A && action == GLFW_RELEASE)
     {
         g_AKeyPressed = false;
     }
-	
-	if (key == GLFW_KEY_S && action == GLFW_RELEASE)
+
+  	if (key == GLFW_KEY_S && action == GLFW_RELEASE)
     {
         g_SKeyPressed = false;
     }
-	
-	if (key == GLFW_KEY_D && action == GLFW_RELEASE)
+
+  	if (key == GLFW_KEY_D && action == GLFW_RELEASE)
     {
         g_DKeyPressed = false;
     }
@@ -1291,7 +1293,7 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
     if ( ellapsed_seconds > 1.0f )
     {
         numchars = snprintf(buffer, 20, "%.2f fps", ellapsed_frames / ellapsed_seconds);
-    
+
         old_seconds = seconds;
         ellapsed_frames = 0;
     }
@@ -1304,4 +1306,3 @@ void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
 // vim: set spell spelllang=pt_br :
-
